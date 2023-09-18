@@ -92,5 +92,6 @@ class Tunnel {
     };
 }
 
-const tunnel = new Tunnel(CONFIG);
-tunnel.start();
+module.exports = {
+    Tunnel
+};

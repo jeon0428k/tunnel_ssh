@@ -1,0 +1,26 @@
+[
+  {
+    name: "identity-kr-1",
+    username: "ssh-username",
+    password: "ssh-password",
+    host: "127.0.0.1",
+    port: 22,
+    dstHost: "127.0.0.1",
+    dstPort: null,
+    localHost: "127.0.0.1",
+    localPort: 0,
+    keepaliveInterval: 30000
+  },
+  {
+    name: "identity-kr-2",
+    username: "ssh-username",
+    password: "ssh-password",
+    host: "127.0.0.1",
+    port: 22,
+    dstHost: "127.0.0.1",
+    dstPort: null,
+    localHost: "127.0.0.1",
+    localPort: 0,
+    keepaliveInterval: 30000
+  },
+]
