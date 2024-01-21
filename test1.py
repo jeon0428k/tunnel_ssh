@@ -7,6 +7,7 @@ import javalang
 import glob
 import os
 
+SRC_ROOT_DIR = r"E:\workspace\get-in-line\src\main\java"
 FILE_DIR = r"E:\workspace\get-in-line\src\main\java\com\uno\getinline"
 FILE_LIST = [
     # r'E:\workspace\get-in-line\src\main\java\com\uno\getinline\service\EventService.java',
@@ -181,7 +182,42 @@ def analysis(file_path):
             session.add_all(calls)
         session.commit()
 
+def is_exists_class_file(call_package, call_class_name):
+    call_package = call_package.replace('.', os.sep)
+    target_path = os.path.join(SRC_ROOT_DIR, call_package, f'{call_class_name}.java')
 
+    file_exists = os.path.exists(target_path)
+    print(f'File exists: {file_exists}, {call_package}.{call_class_name}, {target_path}')
+
+
+def get_parse_constant_java(file_path):
+    with open(file_path, 'r') as java_file:
+        java_code = java_file.read()
+
+    tree = javalang.parse.parse(java_code)
+
+    package_name = None
+    for path, node in tree.filter(javalang.tree.PackageDeclaration):
+        package_name = node.name
+
+    field_values = {}
+    for path, node in tree.filter(javalang.tree.ClassDeclaration):
+        class_name = node.name
+        if node.name == 'Custom':
+            for field in node.fields:
+                for declarator in field.declarators:
+                    if isinstance(declarator.initializer, javalang.tree.Literal):
+                        field_values[declarator.name] = declarator.initializer.value.strip('"')
+                    elif isinstance(declarator.initializer, javalang.tree.BinaryOperation):
+                        left = field_values[declarator.initializer.operandl.member] if isinstance(declarator.initializer.operandl, javalang.tree.MemberReference) else declarator.initializer.operandl.value.strip('"')
+                        right = field_values[declarator.initializer.operandr.member] if isinstance(declarator.initializer.operandr, javalang.tree.MemberReference) else declarator.initializer.operandr.value.strip('"')
+                        field_values[declarator.name] = left + right
+
+    for field, value in field_values.items():
+        print(f"{package_name}.{class_name}.{field} : {value}")
+
+
+get_parse_constant_java(r'E:\workspace\get-in-line\src\main\java\com\test\constants\Custom.java')
 for file_path in glob.glob(os.path.join(FILE_DIR, '**', '*.java'), recursive=True) if len(FILE_LIST) == 0 else FILE_LIST:
     try:
         if len(EXECUTE_FILES) == 0:
